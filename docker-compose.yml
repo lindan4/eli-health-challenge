@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./backend
+    command: npm run dev
+    ports:
+      - "3000:3000" # Access backend at localhost:5001
+    environment:
+      DATABASE_URL: postgres://eli_user:eli_password@db:5432/eli_test_strips
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    depends_on:
+      - postgres # Ensure backend starts after the database
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: eli_test_strips
+      POSTGRES_USER: eli_user
+      POSTGRES_PASSWORD: eli_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:

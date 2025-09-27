@@ -1,0 +1,26 @@
+{
+  "name": "eli-health-challenge",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Eli Health coding challenge monorepo",
+  "workspaces": [
+    "backend",
+    "app"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace backend run dev",
+    "start:backend": "npm --workspace backend start",
+    "dev:app": "npm --workspace app start",
+    "dev": "npm run dev:backend & npm run dev:app",
+    "test": "npm --workspaces run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lindan4/eli-health-challenge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lindan4/eli-health-challenge/issues"
+  },
+  "homepage": "https://github.com/lindan4/eli-health-challenge#readme",
+  "license": "ISC"
+}
