@@ -8,11 +8,11 @@
     "app"
   ],
   "scripts": {
-    "dev:backend": "npm --workspace backend run dev",
-    "start:backend": "npm --workspace backend start",
-    "dev:app": "npm --workspace app start",
-    "dev": "npm run dev:backend & npm run dev:app",
-    "test": "npm --workspaces run test"
+    "dev:backend": "yarn workspace backend dev",
+    "start:backend": "yarn workspace backend start",
+    "dev:app": "yarn workspace app start",
+    "dev": "yarn dev:backend & yarn dev:app",
+    "test": "yarn workspaces run test"
   },
   "repository": {
     "type": "git",

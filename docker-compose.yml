@@ -22,7 +22,7 @@ services:
       POSTGRES_USER: eli_user
       POSTGRES_PASSWORD: eli_password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
