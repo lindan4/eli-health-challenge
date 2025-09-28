@@ -1,9 +1,11 @@
+// context/AppContext.tsx
 import { Submission } from "@/lib/types";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface AppContextType {
   submissions: Submission[];
-  addSubmission: (submission: Submission) => void;
+  setSubmissions: (submissions: Submission[]) => void; // For replacing the whole list
+  addSubmission: (submission: Submission) => void;    // For adding one new submission
   updateSubmission: (id: string, data: Partial<Submission>) => void;
   selectedImage: string | null;
   setSelectedImage: (uri: string | null) => void;
@@ -16,7 +18,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const addSubmission = (submission: Submission) => {
-    setSubmissions((prev) => [submission, ...prev]);
+    // Prepend new submissions to avoid duplicates with existing server data
+    setSubmissions((prev) => [submission, ...prev.filter(s => s.id !== submission.id)]);
   };
 
   const updateSubmission = (id: string, data: Partial<Submission>) => {
@@ -27,7 +30,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ submissions, addSubmission, updateSubmission, selectedImage, setSelectedImage }}
+      value={{
+        submissions,
+        setSubmissions, // Expose the new function
+        addSubmission,
+        updateSubmission,
+        selectedImage,
+        setSelectedImage,
+      }}
     >
       {children}
     </AppContext.Provider>

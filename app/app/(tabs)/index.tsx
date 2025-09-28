@@ -1,24 +1,19 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 import { useAppContext } from "@/context/AppContext";
-import { uploadImage } from "@/lib/api";
-import uuid from "react-native-uuid";
+import { useRouter } from "expo-router"; // Import the router
 import { CameraView } from "@/components/CameraView";
 
 export default function CameraScreen() {
-  const { addSubmission, updateSubmission } = useAppContext();
+  const { setSelectedImage } = useAppContext();
+  const router = useRouter();
 
-  const handleCapture = async (uri: string) => {
-    const id = String(uuid.v4());
-    addSubmission({ id, imageUri: uri, status: "pending" });
-
-    try {
-      const submission = await uploadImage(uri);
-      updateSubmission(id, { qrCode: submission.qr_code, thumbnailUrl: submission.thumbnail_path, status: submission.status });
-    } catch (err) {
-      console.error(err);
-      updateSubmission(id, { status: "error" });
-    }
+  const handleCapture = (uri: string) => {
+    // 1. Set the captured image URI in the global state
+    setSelectedImage(uri);
+    
+    // 2. Navigate to the preview screen
+    router.push("/preview");
   };
 
   return (

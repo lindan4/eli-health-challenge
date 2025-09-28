@@ -7,6 +7,10 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { AppProvider } from '@/context/AppContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import 'react-native-gesture-handler'; // ✨ ADD THIS LINE AT THE VERY TOP
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -48,11 +52,16 @@ export default function RootLayout() {
 function RootLayoutNav() {
 
   return (
-    <AppProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="preview" options={{ title: "Preview" }} />
-      </Stack>
-    </AppProvider>
+    <SafeAreaView style={{ flex: 1 }} edges={['left', 'right', 'top']}>
+      <AppProvider>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="preview" options={{ title: "Preview" }} />
+          </Stack>
+        </GestureHandlerRootView>
+      </AppProvider>
+    </SafeAreaView>
   );
 }
