@@ -9,28 +9,12 @@ import path from 'path';
 import jsQR from 'jsqr';
 
 const router = Router();
-const UPLOADS_DIR = 'uploads';
-const FAILED_DIR = 'failed_qr_uploads';
+const UPLOADS_DIR = process.env.UPLOADS_DIR || '/usr/src/app/uploads';
+
+console.log('Using uploads directory:', UPLOADS_DIR);
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const upload = multer({ dest: path.join(UPLOADS_DIR, '/') });
-
-// Ensure uploads directory exists
-(async () => {
-  try {
-    await fs.mkdir(UPLOADS_DIR, { recursive: true });
-  } catch (error) {
-    console.error('Error creating uploads directory:', error);
-  }
-})();
-
-(async () => {
-  try {
-    await fs.mkdir(FAILED_DIR, { recursive: true });
-    console.log(`Directory '${FAILED_DIR}' is ready.`);
-  } catch (error) {
-    console.error('Error creating failed uploads directory:', error);
-  }
-})();
 
 interface QRDecodeResult {
   data: string | null;
@@ -359,14 +343,6 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 
     console.log('✅ Submission saved to database:', savedSubmission.id);
 
-    // --- 8. Optional: Save failed QR images for debugging ---
-    if (!qrResult.data) {
-      const failedFilename = `failed-${file.filename}${path.extname(file.originalname)}`;
-      const failedPath = path.join(FAILED_DIR, failedFilename);
-      await fs.writeFile(failedPath, imageBuffer);
-      console.log('Saved failed QR image to:', failedPath);
-    }
-
     // --- 9. Return response matching the required API format ---
     res.status(200).json({
       id: savedSubmission.id,
@@ -451,12 +427,18 @@ router.get('/', async (req, res) => {
         const countResult = await pool.query('SELECT COUNT(*) FROM test_strip_submissions');
         const total = parseInt(countResult.rows[0].count, 10);
 
+        // Extract filename from full path for each submission
+        const submissions = submissionsResult.rows.map(row => ({
+            ...row,
+            thumbnailUrl: row.thumbnailUrl ? path.basename(row.thumbnailUrl) : null
+        }));
+
         res.json({
             page,
             limit,
             total,
             totalPages: Math.ceil(total / limit),
-            submissions: submissionsResult.rows,
+            submissions, // Use the mapped submissions with just filenames
         });
     } catch (err) {
         console.error(err);

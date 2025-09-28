@@ -2,18 +2,14 @@ import React from "react";
 import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
 import { Submission } from "@/lib/types";
 import { QRStatusIndicator } from "./QRStatusIndicator";
-
-// Define your backend URL in one place
-const API_BASE_URL = "http://192.168.2.29:3000";
+import { BASE_URL } from "@/constants";
 
 export const SubmissionCard = ({ submission }: { submission: Submission }) => {
   // ✅ FIX: Determine the correct image source.
   // Use the local URI if it's a pending submission, otherwise build the full server URL.
-  const imageUri = submission.localImageUri
-    ? submission.localImageUri
-    : submission.thumbnailUrl
-    ? `${API_BASE_URL}/${submission.thumbnailUrl}`
-    : null;
+  const imageUri = submission.thumbnailUrl 
+  ? `${BASE_URL}/uploads/${submission.thumbnailUrl}`
+  : null;
 
   return (
     <View style={styles.card}>

@@ -6,6 +6,3 @@ app/node_modules/
 backend/dist/
 app/.expo/
 uploads/
-
-
-backend/failed_qr_uploads

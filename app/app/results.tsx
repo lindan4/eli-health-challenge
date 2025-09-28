@@ -1,12 +1,10 @@
 // app/results.tsx
-
 import React from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { QRStatusIndicator } from '@/components/QRStatusIndicator';
-import { Submission } from '@/lib/types';
+import { BASE_URL } from '@/constants';
 
-const API_BASE_URL = "http://192.168.2.29:3000";
 
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
@@ -14,7 +12,7 @@ export default function ResultsScreen() {
   
   // Use thumbnailUrl if available, fallback to localImageUri
   const imageUrl = params.thumbnailUrl 
-    ? `${API_BASE_URL}/uploads/${params.thumbnailUrl}`
+    ? `${BASE_URL}/uploads/${params.thumbnailUrl}`
     : params.localImageUri as string;
 
   return (
