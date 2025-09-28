@@ -91,7 +91,7 @@ async function decodeQRFromBuffer(imageBuffer: Buffer): Promise<QRDecodeResult> 
     {
       name: 'upscaled_small_images',
       process: async () => {
-        const metadata = await sharp(imageBuffer).metadata();
+        const metadata: sharp.Metadata = await sharp(imageBuffer).metadata();
         let targetSize = 800;
         
         // If image is very small, upscale more aggressively
@@ -217,6 +217,29 @@ async function decodeQRFromBuffer(imageBuffer: Buffer): Promise<QRDecodeResult> 
   };
 }
 
+// Helper function to assess image quality
+function assessImageQuality(metadata: any, fileSize: number): 'good' | 'fair' | 'poor' {
+  const { width = 0, height = 0 } = metadata;
+  
+  // Basic quality assessment based on resolution and file size
+  const totalPixels = width * height;
+  const bytesPerPixel = fileSize / totalPixels;
+  
+  // Good quality: High resolution, adequate file size
+  if (totalPixels >= 1000000 && bytesPerPixel > 0.5) { // 1MP+, not over-compressed
+    return 'good';
+  }
+  
+  // Fair quality: Medium resolution OR adequate size but lower res
+  if (totalPixels >= 500000 || bytesPerPixel > 0.3) { // 0.5MP+ OR not heavily compressed
+    return 'fair';
+  }
+  
+  // Poor quality: Low resolution and/or heavily compressed
+  return 'poor';
+}
+
+
 // Alternative function for base64 images
 async function decodeQRFromBase64(base64String: string): Promise<QRDecodeResult> {
   try {
@@ -244,75 +267,119 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     const imageBuffer = await fs.readFile(file.path);
     console.log('Processing image:', file.originalname, 'Size:', file.size, 'bytes');
     
-    // Get image metadata for debugging
+    // Get image metadata
     const metadata = await sharp(imageBuffer).metadata();
     console.log(`Original image metadata: ${metadata.width}x${metadata.height}, format: ${metadata.format}`);
 
-    // --- 1. Decode QR code using Sharp + jsQR ---
+    // --- 1. Assess image quality (separate from QR code processing) ---
+    const imageQuality = assessImageQuality(metadata, file.size);
+
+    // --- 2. Decode QR code using Sharp + jsQR ---
     const qrResult = await decodeQRFromBuffer(imageBuffer);
     
-    let savedPath: string | null = null;
+    // --- 3. Prepare file paths ---
+    const imageFilename = `${Date.now()}-${file.filename}${path.extname(file.originalname)}`;
+    const imagePath = path.join(UPLOADS_DIR, imageFilename);
+    const thumbnailFilename = `thumb-${Date.now()}-${file.filename}.png`;
+    const thumbnailPath = path.join(UPLOADS_DIR, thumbnailFilename);
+
+    // --- 4. Process QR code and determine status ---
+    const qrCodeValid = qrResult.data ? /^ELI-\d{4}-\d{3}$/.test(qrResult.data) : false;
+    let isExpired = false;
+    let status = 'error';
+    let errorMessage = '';
 
     if (!qrResult.data) {
       console.log('❌ No QR code found:', qrResult.error);
-      
-      // Save failed image for debugging
-      const filename = `failed-${file.filename}${path.extname(file.originalname)}`;
-      savedPath = path.join(FAILED_DIR, filename);
-      await fs.writeFile(savedPath, imageBuffer);
-      console.log('Saved failed QR image to:', savedPath);
+      status = 'error';
+      errorMessage = 'No QR code detected in image';
     } else {
       console.log('✅ QR Code successfully decoded:', qrResult.data);
       
-      // Test the regex pattern with your specific QR code
-      const isValidFormat = /^ELI-\d{4}-\d{3}$/.test(qrResult.data);
-      console.log(`QR code format validation: ${isValidFormat ? 'VALID' : 'INVALID'}`);
-      
-      if (isValidFormat) {
+      if (qrCodeValid) {
         // Extract year and check expiration
         const yearFromQr = parseInt(qrResult.data.substring(4, 8), 10);
         const currentYear = new Date().getFullYear();
-        const isExpired = yearFromQr < currentYear;
+        isExpired = yearFromQr < currentYear;
+        
         console.log(`Expiration check: ${isExpired ? 'EXPIRED' : 'VALID'} (Year: ${yearFromQr})`);
-      }
-    }
-
-    // --- 2. Uncomment when ready to save to database ---
-    const qrCodeValid = qrResult.data ? /^ELI-\d{4}-\d{3}$/.test(qrResult.data) : false;
-    let isExpired = false;
-    if (qrCodeValid && qrResult.data) {
-      const yearFromQr = parseInt(qrResult.data.substring(4, 8), 10);
-      const currentYear = new Date().getFullYear();
-      if (yearFromQr < currentYear) isExpired = true;
-    }
-
-    let status = 'error';
-    let quality = 'poor';
-    let errorMessage = qrResult.error || 'QR code not found';
-    
-    if (qrResult.data) {
-      if (qrCodeValid) {
-        quality = 'good';
-        status = isExpired ? 'expired' : 'processed';
-        errorMessage = isExpired ? `Test strip expired in ${qrResult.data.substring(4, 8)}` : '';
+        
+        if (isExpired) {
+          status = 'expired';
+          errorMessage = `Test strip expired in ${yearFromQr}`;
+        } else {
+          status = 'processed';
+          errorMessage = '';
+        }
       } else {
-        quality = 'fair';
+        console.log('❌ Invalid QR code format:', qrResult.data);
+        status = 'error';
         errorMessage = 'Invalid QR code format';
       }
     }
 
-    // Generate thumbnail using Sharp
-    const thumbnailFilename = `thumb-${file.filename}.png`;
-    const thumbnailPath = path.join(UPLOADS_DIR, thumbnailFilename);
-    await sharp(imageBuffer).resize(200, 200).png().toFile(thumbnailPath);
+    // --- 5. Save original image ---
+    await fs.writeFile(imagePath, imageBuffer);
+    console.log('Saved original image to:', imagePath);
 
-    res.status(200).json({ 
-      message: 'Image processed successfully',
-      qrCode: qrResult.data,
+    // --- 6. Generate and save thumbnail ---
+    await sharp(imageBuffer).resize(200, 200).png().toFile(thumbnailPath);
+    console.log('Generated thumbnail:', thumbnailPath);
+
+    // --- 7. Save to database (CRITICAL: ALL submissions must be stored) ---
+    const insertQuery = `
+      INSERT INTO test_strip_submissions (
+        qr_code, 
+        original_image_path, 
+        thumbnail_path, 
+        image_size, 
+        image_dimensions, 
+        status, 
+        error_message, 
+        quality, 
+        qr_code_valid
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+      RETURNING *;
+    `;
+
+    const values = [
+      qrResult.data || null,                              // qr_code
+      imagePath,                                          // original_image_path  
+      thumbnailPath,                                      // thumbnail_path
+      file.size,                                          // image_size
+      `${metadata.width}x${metadata.height}`,            // image_dimensions
+      status,                                             // status
+      errorMessage || null,                               // error_message
+      imageQuality,                                       // quality (based on image characteristics)
+      qrCodeValid                                         // qr_code_valid
+    ];
+
+    const result = await pool.query(insertQuery, values);
+    const savedSubmission = result.rows[0];
+
+    console.log('✅ Submission saved to database:', savedSubmission.id);
+
+    // --- 8. Optional: Save failed QR images for debugging ---
+    if (!qrResult.data) {
+      const failedFilename = `failed-${file.filename}${path.extname(file.originalname)}`;
+      const failedPath = path.join(FAILED_DIR, failedFilename);
+      await fs.writeFile(failedPath, imageBuffer);
+      console.log('Saved failed QR image to:', failedPath);
+    }
+
+    // --- 9. Return response matching the required API format ---
+    res.status(200).json({
+      id: savedSubmission.id,
+      status: savedSubmission.status,
+      qrCode: savedSubmission.qr_code,
+      qrCodeValid: savedSubmission.qr_code_valid,
+      quality: savedSubmission.quality,
+      processedAt: savedSubmission.created_at,
+      // Additional debug info (can be removed in production)
+      thumbnailUrl: thumbnailFilename,
+      message: 'Image processed and saved successfully',
       found: !!qrResult.data,
       approach: qrResult.approach,
-      failedImageSaved: !!savedPath,
-      error: qrResult.error,
       originalSize: `${metadata.width}x${metadata.height}`
     });
 
@@ -320,6 +387,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     console.error('Unexpected error:', err);
     res.status(500).json({ error: 'Unexpected error processing image' });
   } finally {
+    // Clean up temp file
     await fs.unlink(file.path).catch(e => console.error('Failed to delete temp file:', e));
   }
 });

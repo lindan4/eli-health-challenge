@@ -22,6 +22,7 @@ export interface SubmissionUploadResponse {
   qrCodeValid: boolean;
   quality: "good" | "fair" | "poor";
   processedAt: string;
+  thumbnailUrl: string; // Add this
 }
 
 export interface PaginatedSubmissionsResponse {

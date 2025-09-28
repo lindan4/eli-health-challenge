@@ -3,9 +3,9 @@ import { useAppContext } from "@/context/AppContext";
 import { useRouter } from "expo-router";
 import { uploadImage } from "@/lib/api";
 import { useState } from "react";
+import { Submission } from "@/lib/types";
 
 export default function PreviewScreen() {
-  // ✅ The only context function we need here now is addSubmission
   const { selectedImage, setSelectedImage, addSubmission } = useAppContext();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -16,37 +16,44 @@ export default function PreviewScreen() {
     if (!selectedImage) return;
 
     setIsSubmitting(true);
-
     try {
-      // 1. Upload the image and wait for the response
       const serverResponse = await uploadImage(selectedImage);
 
-      // 2. Add the complete submission to the history list (in the background)
-      addSubmission({
+      console.log("Server response:", serverResponse);
+
+      // 2. Create submission object that matches your Submission interface
+      const submission: Submission = {
         id: serverResponse.id,
         status: serverResponse.status,
         qrCode: serverResponse.qrCode,
         quality: serverResponse.quality,
-        // The thumbnail path from the server will be relative
-        thumbnailUrl: `thumb-${serverResponse.id}.png`, // Example, adjust if needed
+        thumbnailUrl: serverResponse.thumbnailUrl || null,
         createdAt: serverResponse.processedAt,
-      });
+        localImageUri: selectedImage,
+      };
 
-      // 3. Navigate to the results screen with the server data
+      // 3. Add to history
+      addSubmission(submission);
+
+      // 4. Navigate to results with the submission data
       router.replace({
         pathname: "/results",
-        params: { 
-          ...serverResponse, 
-          qrCodeValid: String(serverResponse.qrCodeValid) // Convert boolean to string
-        },
+        params: {
+          id: submission.id,
+          status: submission.status,
+          qrCode: submission.qrCode || '', // Empty string instead of 'null'
+          quality: submission.quality || '',
+          qrCodeValid: String(serverResponse.qrCodeValid),
+          processedAt: submission.createdAt,
+          thumbnailUrl: serverResponse.thumbnailUrl || '', // Add this
+          localImageUri: selectedImage,
+        }
       });
-
     } catch (err) {
       console.error("Upload failed:", err);
       Alert.alert("Upload Failed", "Could not upload the image. Please try again.");
     } finally {
       setIsSubmitting(false);
-      // We no longer clear the selected image here, as the router.replace handles leaving the screen
     }
   };
 
@@ -55,11 +62,9 @@ export default function PreviewScreen() {
     router.back();
   };
 
-  // ... (the JSX with the ActivityIndicator remains the same)
   return (
     <View style={styles.container}>
       <Image source={{ uri: selectedImage }} style={styles.image} resizeMode="contain" />
-      
       {isSubmitting ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -73,15 +78,15 @@ export default function PreviewScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center", 
-    backgroundColor: 'black' 
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: 'black'
   },
-  image: { 
-    flex: 1, 
-    width: "100%" 
+  image: {
+    flex: 1,
+    width: "100%"
   },
   buttonContainer: {
     flexDirection: 'row',

@@ -11,33 +11,39 @@ const API_BASE_URL = "http://192.168.2.29:3000";
 export default function ResultsScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-
-  // Reconstruct the submission object from navigation parameters
-  const submission = params as any as Submission;
-  const imageUrl = `${API_BASE_URL}/${params.thumbnailUrl}`;
+  
+  // Use thumbnailUrl if available, fallback to localImageUri
+  const imageUrl = params.thumbnailUrl 
+    ? `${API_BASE_URL}/uploads/${params.thumbnailUrl}`
+    : params.localImageUri as string;
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Submission Result</Text>
-      
       <Image source={{ uri: imageUrl }} style={styles.thumbnail} />
-
+      
       <View style={styles.row}>
         <Text style={styles.label}>Status:</Text>
-        <QRStatusIndicator status={submission.status} />
-        <Text style={[styles.statusText, { textTransform: 'capitalize' }]}>{submission.status}</Text>
+        <QRStatusIndicator status={params.status as any} />
+        <Text style={[styles.statusText, { textTransform: 'capitalize' }]}>
+          {params.status}
+        </Text>
       </View>
       
       <View style={styles.row}>
         <Text style={styles.label}>QR Code:</Text>
-        <Text style={styles.value}>{submission.qrCode || 'Not Found'}</Text>
+        <Text style={styles.value}>
+          {params.qrCode || 'Not Found'}
+        </Text>
       </View>
       
       <View style={styles.row}>
         <Text style={styles.label}>Quality:</Text>
-        <Text style={[styles.value, { textTransform: 'capitalize' }]}>{submission.quality}</Text>
+        <Text style={[styles.value, { textTransform: 'capitalize' }]}>
+          {params.quality}
+        </Text>
       </View>
-
+      
       <Button title="Done" onPress={() => router.back()} />
     </View>
   );
