@@ -1,12 +1,12 @@
-import React, { useState } from "react";
 import { View, Image, Button, StyleSheet, ActivityIndicator, Alert } from "react-native";
 import { useAppContext } from "@/context/AppContext";
 import { useRouter } from "expo-router";
 import { uploadImage } from "@/lib/api";
-import uuid from "react-native-uuid";
+import { useState } from "react";
 
 export default function PreviewScreen() {
-  const { selectedImage, setSelectedImage, addSubmission, updateSubmission } = useAppContext();
+  // ✅ The only context function we need here now is addSubmission
+  const { selectedImage, setSelectedImage, addSubmission } = useAppContext();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -16,44 +16,37 @@ export default function PreviewScreen() {
     if (!selectedImage) return;
 
     setIsSubmitting(true);
-    const tempId = String(uuid.v4());
-
-    // Optimistic UI: Add a pending submission immediately
-    addSubmission({
-      id: tempId,
-      localImageUri: selectedImage,
-      status: "pending",
-      qrCode: null,
-      quality: null,
-      thumbnailUrl: null,
-      createdAt: new Date().toISOString(),
-    });
-
-    // Dismiss the preview screen and go back
-    router.back(); 
-    setSelectedImage(null);
 
     try {
-      // Upload the image
+      // 1. Upload the image and wait for the response
       const serverResponse = await uploadImage(selectedImage);
 
-      // Update the submission with the real data from the server
-      updateSubmission(tempId, {
+      // 2. Add the complete submission to the history list (in the background)
+      addSubmission({
         id: serverResponse.id,
         status: serverResponse.status,
         qrCode: serverResponse.qrCode,
         quality: serverResponse.quality,
-        // We'll construct a temporary thumbnail URL until the real one is available
-        thumbnailUrl: `http://192.168.2.29:3000/${tempId.replace('uploads/', '')}`,
+        // The thumbnail path from the server will be relative
+        thumbnailUrl: `thumb-${serverResponse.id}.png`, // Example, adjust if needed
         createdAt: serverResponse.processedAt,
+      });
+
+      // 3. Navigate to the results screen with the server data
+      router.replace({
+        pathname: "/results",
+        params: { 
+          ...serverResponse, 
+          qrCodeValid: String(serverResponse.qrCodeValid) // Convert boolean to string
+        },
       });
 
     } catch (err) {
       console.error("Upload failed:", err);
-      updateSubmission(tempId, { status: "error" });
       Alert.alert("Upload Failed", "Could not upload the image. Please try again.");
     } finally {
       setIsSubmitting(false);
+      // We no longer clear the selected image here, as the router.replace handles leaving the screen
     }
   };
 
@@ -62,6 +55,7 @@ export default function PreviewScreen() {
     router.back();
   };
 
+  // ... (the JSX with the ActivityIndicator remains the same)
   return (
     <View style={styles.container}>
       <Image source={{ uri: selectedImage }} style={styles.image} resizeMode="contain" />
