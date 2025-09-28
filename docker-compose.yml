@@ -2,18 +2,20 @@ version: "3.8"
 
 services:
   backend:
-    build: ./backend
-    command: npm run dev
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: yarn dev
     ports:
-      - "3000:3000" # Access backend at localhost:5001
+      - "5001:5000" # host:container
     environment:
-      DATABASE_URL: postgres://eli_user:eli_password@db:5432/eli_test_strips
+      DATABASE_URL: postgres://eli_user:eli_password@postgres:5432/eli_test_strips
       NODE_ENV: development
     volumes:
-      - ./backend:/app
-      - ./uploads:/app/uploads
+      - ./backend:/usr/src/app/backend
+      - ./uploads:/usr/src/app/backend/uploads
     depends_on:
-      - postgres # Ensure backend starts after the database
+      - postgres
 
   postgres:
     image: postgres:15

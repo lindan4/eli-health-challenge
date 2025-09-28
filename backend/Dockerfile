@@ -1,23 +1,23 @@
-#Node LTS backend Dockerfile
+# backend/Dockerfile
+
 FROM node:20
 
-# Set working directory
 WORKDIR /usr/src/app
 
-# Copy package files
-COPY package*.json ./
+# Copy root lockfile + backend package.json
+COPY package.json yarn.lock ./
+COPY backend/package.json ./backend/
 
-# Install dependencies
-RUN npm install
+# Install all dependencies
+RUN yarn install --frozen-lockfile
 
-# Copy the rest of the code
-COPY . .
+# Copy backend source code
+COPY backend/ ./backend/
 
-# Build TypeScript (optional)
-RUN npm run build
+WORKDIR /usr/src/app/backend
 
-# Expose port
+# Expose port your backend uses
 EXPOSE 5000
 
-# Start app
-CMD ["npm", "run", "dev"]
+# Run dev script
+CMD ["yarn", "dev"]
