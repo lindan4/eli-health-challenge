@@ -142,7 +142,6 @@ describe('Camera to Preview Flow', () => {
     
     // Assert
     await waitFor(() => {
-      // ✅ FIX: Expect the specific error message you mocked
       expect(mockAlert).toHaveBeenCalledWith(
         'Upload Failed',
         networkErrorMessage 

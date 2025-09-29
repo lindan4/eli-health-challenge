@@ -52,7 +52,7 @@ The backend and database run in Docker containers.
 ```bash
 # This command will build the backend image and start both the
 # backend and postgres containers in the background.
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 The backend server will be available at `http://localhost:3000`.
@@ -107,7 +107,7 @@ Look for the "IPv4 Address" under your active Wi-Fi or Ethernet adapter.
 
 ## Running the Application
 
-- **Backend:** The backend is already running via the `docker-compose up -d` command.
+- **Backend:** The backend is already running via the `docker-compose up --build -d` command.
 - **Frontend:** From the `app` directory, run one of the following commands:
 
 ```bash
@@ -126,7 +126,7 @@ The backend suite includes API and integration tests. The Docker containers must
 
 ```bash
 # 1. Make sure your Docker containers are running
-docker-compose up -d
+docker-compose up --build -d
 
 # 2. Navigate to the backend directory
 cd backend
