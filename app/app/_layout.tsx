@@ -58,6 +58,7 @@ function RootLayoutNav() {
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="preview" options={{ title: "Preview" }} />
+            <Stack.Screen name="results" options={{ title: "Results", headerBackTitle: 'Back' }} />
           </Stack>
         </GestureHandlerRootView>
       </AppProvider>

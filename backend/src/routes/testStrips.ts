@@ -201,7 +201,7 @@ async function decodeQRFromBuffer(imageBuffer: Buffer): Promise<QRDecodeResult> 
 }
 
 // Helper function to assess image quality
-function assessImageQuality(metadata: any, fileSize: number): 'good' | 'fair' | 'poor' {
+function assessImageQuality(metadata: sharp.Metadata, fileSize: number): 'good' | 'fair' | 'poor' {
   const { width = 0, height = 0 } = metadata;
   
   // Basic quality assessment based on resolution and file size
