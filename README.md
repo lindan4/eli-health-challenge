@@ -1,12 +1,10 @@
 # Eli Health - Test Strip Scanner Technical Test
 
-**Submitted by:** [Your Name]
-
 This project is a full-stack mobile application that allows users to capture photos of test strips, upload them to a backend service for processing, and view their submission history. The application is built with a React Native frontend and a Node.js backend, all containerized with Docker for a consistent development environment.
 
 ## Demo Video
 
-[Link to your 2-3 minute demo video]
+[Pending]
 
 ## Features
 
@@ -40,70 +38,91 @@ This project is a full-stack mobile application that allows users to capture pho
 
 Follow these steps to get the project running locally.
 
-**1. Clone the Repository**
-<code>
-git clone <your-repo-url>
-cd eli-health-challenge```
-</code>
+### 1. Clone the Repository
 
-**2. Backend Setup (Docker)**
+```bash
+git clone <your-repo-url>
+cd eli-health-challenge
+```
+
+### 2. Backend Setup (Docker)
+
 The backend and database run in Docker containers.
 
-<code>
+```bash
 # This command will build the backend image and start both the
 # backend and postgres containers in the background.
 docker-compose up --build
-</code>
+```
 
-The backend server will be available at http://localhost:5001.
+The backend server will be available at `http://localhost:5001`.
 
-**3. Frontend Setup (Mobile App)**
+### 3. Frontend Setup (Mobile App)
+
 The mobile app runs directly on your machine.
-<code>
-// Navigate into the app directory
+
+```bash
+# Navigate into the app directory
 cd app
 
-// Install dependencies
+# Install dependencies
 yarn install
 
-// Create your local environment file
+# Create your local environment file
 cp .env.example .env
-</code>
+```
 
-Next, open the newly created app/.env file and replace <YOUR_LOCAL_IP_ADDRESS> with your computer's local network IP address. On a Mac, you can find this by running ifconfig | grep "inet ".
+Next, open the newly created `app/.env` file and replace `<YOUR_LOCAL_IP_ADDRESS>` with your computer's local network IP address. On a Mac, you can find this by running `ifconfig | grep "inet "`.
 
-# Running the Application
+## Running the Application
 
-Backend: The backend is already running via the docker-compose up -d command.
-Frontend: From the app directory, run one of the following commands:
+- **Backend:** The backend is already running via the `docker-compose up -d` command.
+- **Frontend:** From the `app` directory, run one of the following commands:
 
-<code>
-// To run on an iOS device/simulator
+```bash
+# To run on an iOS device/simulator
 yarn ios
 
-// To run on an Android device/emulator
+# To run on an Android device/emulator
 yarn android
-</code>
+```
 
-# Running Tests
+## Running Tests
 
-Backend Tests
+### Backend Tests
 
 The backend suite includes API and integration tests. The Docker containers must be running for the database connection to work.
 
-<code>
-#1. Make sure your Docker containers are running
+```bash
+# 1. Make sure your Docker containers are running
 docker-compose up -d
 
-#2. Navigate to the backend directory
-
+# 2. Navigate to the backend directory
 cd backend
 
-#3. Create the test database (one-time setup)
-
+# 3. Create the test database (one-time setup)
 docker-compose exec postgres createdb -U eli_user eli_test_strips_test
 
-#4. Run the tests
-
+# 4. Run the tests
 yarn test
-</code>
+```
+
+### Frontend Tests
+
+The frontend suite includes component tests for the UI.
+
+```bash
+# Navigate to the app directory
+cd app
+
+# Run the tests
+yarn test
+```
+
+## API Documentation
+
+| Endpoint | Method | Description | Response |
+|----------|--------|-------------|----------|
+| `/api/test-strips/upload` | `POST` | Uploads a `multipart/form-data` image for processing. | `201 OK` with a JSON object of the submission result. |
+| `/api/test-strips` | `GET` | Retrieves a paginated list of all submissions. Supports `?page` and `?limit`. | `200 OK` with a paginated list of submission objects. |
+| `/api/test-strips/:id` | `GET` | Retrieves the detailed information for a single submission by its UUID. | `200 OK` with a single submission object. |
