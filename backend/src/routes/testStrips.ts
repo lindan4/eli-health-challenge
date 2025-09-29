@@ -225,21 +225,6 @@ function assessImageQuality(metadata: any, fileSize: number): 'good' | 'fair' | 
 }
 
 
-// Alternative function for base64 images
-async function decodeQRFromBase64(base64String: string): Promise<QRDecodeResult> {
-  try {
-    const qrBuffer = Buffer.from(base64String.replace(/^data:image\/[a-z]+;base64,/, ''), 'base64');
-    return await decodeQRFromBuffer(qrBuffer);
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return {
-      data: null,
-      approach: null,
-      error: errorMessage
-    };
-  }
-}
-
 router.post('/upload', upload.single('image'), async (req, res) => {
   const file = req.file;
   if (!file) return res.status(400).json({ error: 'No file uploaded' });
@@ -366,37 +351,6 @@ router.post('/upload', upload.single('image'), async (req, res) => {
   } finally {
     // Clean up temp file
     await fs.unlink(file.path).catch(e => console.error('Failed to delete temp file:', e));
-  }
-});
-
-/**
- * @route   POST /api/test-strips/upload-base64
- * @desc    Upload and process QR code from base64 string
- * @access  Public
- */
-router.post('/upload-base64', async (req, res) => {
-  try {
-    const { image: base64Image } = req.body;
-    
-    if (!base64Image) {
-      return res.status(400).json({ error: 'No base64 image provided' });
-    }
-
-    console.log('Processing base64 image...');
-
-    const qrResult = await decodeQRFromBase64(base64Image);
-
-    res.status(200).json({
-      message: 'Base64 image processed successfully',
-      qrCode: qrResult.data,
-      found: !!qrResult.data,
-      approach: qrResult.approach,
-      error: qrResult.error
-    });
-
-  } catch (err) {
-    console.error('Unexpected error processing base64:', err);
-    res.status(500).json({ error: 'Unexpected error processing base64 image' });
   }
 });
 
