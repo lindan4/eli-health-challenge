@@ -117,7 +117,7 @@ yarn dev:app:ios --device
 yarn dev:app:android --device
 ```
 
-Once your environment is set up or for future runs on the same device, you can simply run:
+Once your environment is set up, or for future runs on the same device, you can simply run:
 
 ```bash
 yarn dev:app
