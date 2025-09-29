@@ -55,7 +55,7 @@ The backend and database run in Docker containers.
 docker-compose up --build
 ```
 
-The backend server will be available at `http://localhost:5001`.
+The backend server will be available at `http://localhost:3000`.
 
 ### 3. Frontend Setup (Mobile App)
 
@@ -81,10 +81,10 @@ Next, open the newly created `app/.env` file and replace `<YOUR_LOCAL_IP_ADDRESS
 
 ```bash
 # To run on an iOS device
-yarn ios --device
+yarn dev:app:ios --device
 
 # To run on an Android device/emulator
-yarn android --device
+yarn dev:app:android --device
 ```
 
 ## Running Tests

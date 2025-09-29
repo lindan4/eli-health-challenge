@@ -11,6 +11,8 @@
     "dev:backend": "yarn workspace backend dev",
     "start:backend": "yarn workspace backend start",
     "dev:app": "yarn workspace app start",
+    "dev:app:ios": "yarn workspace app ios",
+    "dev:app:android": "yarn workspace app android",
     "dev": "yarn dev:backend & yarn dev:app",
     "test": "yarn workspaces run test"
   },
