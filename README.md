@@ -80,11 +80,11 @@ Next, open the newly created `app/.env` file and replace `<YOUR_LOCAL_IP_ADDRESS
 - **Frontend:** From the `app` directory, run one of the following commands:
 
 ```bash
-# To run on an iOS device/simulator
-yarn ios
+# To run on an iOS device
+yarn ios --device
 
 # To run on an Android device/emulator
-yarn android
+yarn android --device
 ```
 
 ## Running Tests
@@ -121,14 +121,14 @@ yarn test
 
 ## Assumptions & Design Decisions
 
-* **Database Schema:** The provided schema was missing fields for `quality` and `qr_code_valid`. I added these columns to the `test_strip_submissions` table to store the results of the backend processing and fulfill the API response requirements.
-* **QR Code Robustness:** To ensure a high success rate for QR code scanning, I implemented a robust decoding function that attempts multiple image pre-processing strategies (e.g., grayscale, high contrast, thresholding) before trying to find a QR code.
-*    **Mobile Testing Strategy:** The requirement was to test the "camera, history view". I chose to write comprehensive tests for the `HistoryScreen`, as this demonstrated more advanced testing skills (mocking APIs and context, testing async behavior) than a simple test of the `CameraView` wrapper would have 
+- **Database Schema:** The provided schema was missing fields for `quality` and `qr_code_valid`. I added these columns to the `test_strip_submissions` table to store the results of the backend processing and fulfill the API response requirements.
+- **QR Code Robustness:** To ensure a high success rate for QR code scanning, I implemented a robust decoding function that attempts multiple image pre-processing strategies (e.g., grayscale, high contrast, thresholding) before trying to find a QR code.
+- **Mobile Testing Strategy:** The requirement was to test the "camera, history view". I chose to write comprehensive tests for the `HistoryScreen`, as this demonstrated more advanced testing skills (mocking APIs and context, testing async behavior) than a simple test of the `CameraView` wrapper would have
 
 ## API Documentation
 
-| Endpoint | Method | Description | Response |
-|----------|--------|-------------|----------|
-| `/api/test-strips/upload` | `POST` | Uploads a `multipart/form-data` image for processing. | `201 OK` with a JSON object of the submission result. |
-| `/api/test-strips` | `GET` | Retrieves a paginated list of all submissions. Supports `?page` and `?limit`. | `200 OK` with a paginated list of submission objects. |
-| `/api/test-strips/:id` | `GET` | Retrieves the detailed information for a single submission by its UUID. | `200 OK` with a single submission object. |
+| Endpoint                  | Method | Description                                                                   | Response                                              |
+| ------------------------- | ------ | ----------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `/api/test-strips/upload` | `POST` | Uploads a `multipart/form-data` image for processing.                         | `201 OK` with a JSON object of the submission result. |
+| `/api/test-strips`        | `GET`  | Retrieves a paginated list of all submissions. Supports `?page` and `?limit`. | `200 OK` with a paginated list of submission objects. |
+| `/api/test-strips/:id`    | `GET`  | Retrieves the detailed information for a single submission by its UUID.       | `200 OK` with a single submission object.             |
