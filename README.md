@@ -119,6 +119,12 @@ cd app
 yarn test
 ```
 
+## Assumptions & Design Decisions
+
+* **Database Schema:** The provided schema was missing fields for `quality` and `qr_code_valid`. I added these columns to the `test_strip_submissions` table to store the results of the backend processing and fulfill the API response requirements.
+* **QR Code Robustness:** To ensure a high success rate for QR code scanning, I implemented a robust decoding function that attempts multiple image pre-processing strategies (e.g., grayscale, high contrast, thresholding) before trying to find a QR code.
+*    **Mobile Testing Strategy:** The requirement was to test the "camera, history view". I chose to write comprehensive tests for the `HistoryScreen`, as this demonstrated more advanced testing skills (mocking APIs and context, testing async behavior) than a simple test of the `CameraView` wrapper would have 
+
 ## API Documentation
 
 | Endpoint | Method | Description | Response |
