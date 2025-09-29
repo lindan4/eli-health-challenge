@@ -124,8 +124,9 @@ yarn dev:app
 ```
 
 This will start the Expo development server and display a QR code in your terminal.
-• Scan this QR code with the Expo Go app on your device to launch the app.
-• Alternatively, you can press the shortcut keys shown in the terminal to open an iOS simulator or Android emulator.
+
+- Scan this QR code with the Expo Go app on your device to launch the app.
+- Alternatively, you can press the shortcut keys shown in the terminal to open an iOS simulator or Android emulator.
 
 ## Running Tests
 
