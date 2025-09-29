@@ -1,4 +1,5 @@
 import { ExpoConfig } from '@expo/config-types';
+import 'dotenv/config';
 
 const config: ExpoConfig = {
   name: "TestStripScanner",
@@ -44,6 +45,9 @@ const config: ExpoConfig = {
   ],
   experiments: {
     typedRoutes: true,
+  },
+  extra: {
+    API_URL: process.env.API_URL,
   },
 };
 
