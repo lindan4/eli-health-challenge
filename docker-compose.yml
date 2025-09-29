@@ -7,8 +7,9 @@ services:
       dockerfile: backend/Dockerfile
     command: yarn dev
     ports:
-      - "5001:5000" # host:container
+      - "3000:3000" # host:container
     environment:
+      PORT: 3000
       DATABASE_URL: postgres://eli_user:eli_password@postgres:5432/eli_test_strips
       NODE_ENV: development
     volumes:
