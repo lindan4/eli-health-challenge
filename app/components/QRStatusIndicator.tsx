@@ -1,6 +1,6 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
-import { Submission } from "@/lib/types"; // Import the main Submission type
+import { Submission } from "@/lib/types";
 
 // Define the colors in a map for clarity and easy maintenance
 const STATUS_COLORS = {
@@ -18,7 +18,6 @@ export const QRStatusIndicator = ({ status }: { status: Submission['status'] }) 
   return (
     <View 
       style={[styles.circle, { backgroundColor }]} 
-      // ✨ IMPROVEMENT: Add accessibility label for screen readers
       accessibilityLabel={`Status: ${status}`}
     />
   );

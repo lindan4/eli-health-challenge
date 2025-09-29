@@ -32,7 +32,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     <AppContext.Provider
       value={{
         submissions,
-        setSubmissions, // Expose the new function
+        setSubmissions,
         addSubmission,
         updateSubmission,
         selectedImage,

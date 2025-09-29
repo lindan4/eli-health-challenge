@@ -5,8 +5,6 @@ import { QRStatusIndicator } from "./QRStatusIndicator";
 import { BASE_URL } from "@/constants";
 
 export const SubmissionCard = ({ submission }: { submission: Submission }) => {
-  // ✅ FIX: Determine the correct image source.
-  // Use the local URI if it's a pending submission, otherwise build the full server URL.
   const imageUri = submission.thumbnailUrl 
   ? `${BASE_URL}/uploads/${submission.thumbnailUrl}`
   : null;
@@ -26,10 +24,8 @@ export const SubmissionCard = ({ submission }: { submission: Submission }) => {
       <View style={styles.infoContainer}>
         <Text style={styles.qrText}>QR: {submission.qrCode || "N/A"}</Text>
         
-        {/* ✨ IMPROVEMENT: Display the quality */}
         <Text style={styles.detailText}>Quality: {submission.quality || "..."}</Text>
         
-        {/* ✨ IMPROVEMENT: Display a formatted date */}
         <Text style={styles.dateText}>
           {new Date(submission.createdAt).toLocaleString()}
         </Text>

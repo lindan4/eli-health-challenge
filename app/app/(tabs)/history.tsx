@@ -13,11 +13,9 @@ export default function HistoryScreen() {
     setRefreshing(true);
     try {
       const response = await fetchSubmissions();
-      // ✅ FIX: Replace the entire list with the fetched data
       setSubmissions(response.submissions);
     } catch (err) {
       console.error("Failed to load submissions:", err);
-      // TODO: Show an error message to the user
     } finally {
       setRefreshing(false);
     }

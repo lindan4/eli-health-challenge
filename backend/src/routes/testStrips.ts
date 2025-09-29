@@ -4,8 +4,6 @@ import sharp from 'sharp';
 import { Pool } from 'pg';
 import fs from 'fs/promises';
 import path from 'path';
-
-// Import jsQR with proper error handling
 import jsQR from 'jsqr';
 
 const router = Router();

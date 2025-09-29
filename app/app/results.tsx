@@ -1,4 +1,3 @@
-// app/results.tsx
 import React from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
