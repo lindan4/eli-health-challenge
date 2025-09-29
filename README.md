@@ -4,7 +4,7 @@ This project is a full-stack mobile application that allows users to capture pho
 
 ## Demo Video
 
-[View here](https://youtu.be/JXnlBihiGWA)
+[View here](https://youtu.be/3iLfXBTqiSY)
 
 ## Features
 
@@ -50,8 +50,7 @@ cd eli-health-challenge
 The backend and database run in Docker containers.
 
 ```bash
-# This command will build the backend image and start both the
-# backend and postgres containers in the background.
+# This command will build the backend image (if not already built) and start both the backend and postgres containers in the background.
 docker-compose up --build -d
 ```
 
@@ -126,7 +125,7 @@ The backend suite includes API and integration tests. The Docker containers must
 
 ```bash
 # 1. Make sure your Docker containers are running
-docker-compose up --build -d
+docker-compose up -d
 
 # 2. Navigate to the backend directory
 cd backend
