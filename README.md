@@ -23,7 +23,7 @@ This project is a full-stack mobile application that allows users to capture pho
 
 - **Monorepo:** Yarn Workspaces
 - **Mobile App:** React Native, Expo Router, TypeScript, React Native Vision Camera, React Native Gesture Handler
-- **Backend:** Node.js, Express, TypeScript, Sharp, ZXing, PostgreSQL
+- **Backend:** Node.js, Express, TypeScript, Sharp, JSQR, PostgreSQL
 - **Infrastructure:** Docker, Docker Compose
 - **Testing:** Jest, Supertest, React Native Testing Library
 
@@ -72,7 +72,38 @@ yarn install
 cp .env.example .env
 ```
 
-Next, open the newly created `app/.env` file and replace `<YOUR_LOCAL_IP_ADDRESS>` with your computer's local network IP address. On a Mac, you can find this by running `ifconfig | grep "inet "`.
+# Finding Your Local IP Address
+
+Next, open the newly created `app/.env` file and replace `<YOUR_LOCAL_IP_ADDRESS>` with your computer's local network IP address. This is required for the mobile app on your phone to connect to the backend server running on your computer.
+
+## On macOS / Linux
+
+Run the following command in your terminal:
+
+```bash
+ifconfig | grep "inet "
+```
+
+You are looking for the IP address that is NOT `127.0.0.1`. It will likely start with `192.168.x.x` or `10.x.x.x`.
+
+**Example Output:**
+
+```
+inet 127.0.0.1 netmask 0xff000000
+inet 192.168.2.29 netmask 0xffffff00 broadcast 192.168.2.255
+```
+
+In this example, you would use `192.168.2.29`.
+
+## On Windows
+
+Run the following command in your Command Prompt or PowerShell:
+
+```bash
+ipconfig
+```
+
+Look for the "IPv4 Address" under your active Wi-Fi or Ethernet adapter.
 
 ## Running the Application
 
