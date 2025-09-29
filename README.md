@@ -106,8 +106,8 @@ Look for the "IPv4 Address" under your active Wi-Fi or Ethernet adapter.
 
 ## Running the Application
 
-- **Backend:** The backend is already running via the `docker-compose up --build -d` command.
-- **Frontend:** From the `app` directory, run one of the following commands:
+- **Backend:** The backend is already running via the `docker-compose up -d` command. If you did not already build it, then run `docker-compose up --build -d`
+- **Frontend:** Run one of the following commands from the root directory of the project:
 
 ```bash
 # To run on an iOS device
@@ -119,7 +119,7 @@ yarn dev:app:android --device
 
 ## Running Tests
 
-### Backend Tests
+### Backend and Frontend Tests
 
 The backend suite includes API and integration tests. The Docker containers must be running for the database connection to work.
 
@@ -127,25 +127,7 @@ The backend suite includes API and integration tests. The Docker containers must
 # 1. Make sure your Docker containers are running
 docker-compose up -d
 
-# 2. Navigate to the backend directory
-cd backend
-
-# 3. Create the test database (one-time setup)
-docker-compose exec postgres createdb -U eli_user eli_test_strips_test
-
-# 4. Run the tests
-yarn test
-```
-
-### Frontend Tests
-
-The frontend suite includes component tests for the UI.
-
-```bash
-# Navigate to the app directory
-cd app
-
-# Run the tests
+# 2. Run the tests
 yarn test
 ```
 
