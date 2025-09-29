@@ -4,7 +4,7 @@ This project is a full-stack mobile application that allows users to capture pho
 
 ## Demo Video
 
-[Pending]
+[View here](https://youtu.be/JXnlBihiGWA)
 
 ## Features
 
