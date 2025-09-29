@@ -173,7 +173,8 @@ async function decodeQRFromBuffer(imageBuffer: Buffer): Promise<QRDecodeResult> 
       }
 
       // Use jsQR to decode the QR code
-      const result = jsQR.default(rgbaData, info.width, info.height, {
+      // @ts-ignore: jsQR type mismatch workaround
+      const result = jsQR(rgbaData, info.width, info.height, {
         inversionAttempts: 'attemptBoth' // Try both normal and inverted
       });
 

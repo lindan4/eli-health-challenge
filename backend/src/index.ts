@@ -30,7 +30,12 @@ app.get('/health', async (req, res) => {
 
 app.use('/api/test-strips', testStripsRouter); // Standard practice to prefix with /api
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Backend running on port ${PORT}`);
+  });
+}
+
+// ✅ FIX: Export the app for Supertest to use
+export default app;

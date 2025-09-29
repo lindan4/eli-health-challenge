@@ -6,3 +6,6 @@ app/node_modules/
 backend/dist/
 app/.expo/
 uploads/
+
+
+backend/test-uploads/
