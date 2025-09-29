@@ -107,15 +107,25 @@ Look for the "IPv4 Address" under your active Wi-Fi or Ethernet adapter.
 ## Running the Application
 
 - **Backend:** The backend is already running via the `docker-compose up -d` command. If you did not already build it, then run `docker-compose up --build -d`
-- **Frontend:** Run one of the following commands from the root directory of the project:
+- **Frontend:** Run one of the following commands from the root directory of the project. For the first run on a physical device, make sure your phone is connected to your computer via USB (or is discoverable on the same network).
 
 ```bash
-# To run on an iOS device
+# iOS (physical device or simulator)
 yarn dev:app:ios --device
 
-# To run on an Android device/emulator
+# Android (physical device or emulator)
 yarn dev:app:android --device
 ```
+
+Once your environment is set up or for future runs on the same device, you can simply run:
+
+```bash
+yarn dev:app
+```
+
+This will start the Expo development server and display a QR code in your terminal.
+• Scan this QR code with the Expo Go app on your device to launch the app.
+• Alternatively, you can press the shortcut keys shown in the terminal to open an iOS simulator or Android emulator.
 
 ## Running Tests
 
