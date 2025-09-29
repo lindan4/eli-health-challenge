@@ -9,10 +9,6 @@ export default {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  setupFilesAfterEnv: ["./src/__tests__/setup.ts"],
-  testPathIgnorePatterns: [
-    "/node_modules/",
-    "/dist/",
-    "/src/__tests__/setup.ts",
-  ],
+  setupFilesAfterEnv: ["./src/tests/setup.ts"],
+  testPathIgnorePatterns: ["/node_modules/", "/dist/", "/src/tests/setup.ts"],
 };
