@@ -12,7 +12,10 @@ const UPLOADS_DIR = process.env.UPLOADS_DIR || '/usr/src/app/uploads';
 console.log('Using uploads directory:', UPLOADS_DIR);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const upload = multer({ dest: path.join(UPLOADS_DIR, '/') });
+const upload = multer({ dest: path.join(UPLOADS_DIR, '/'),
+  limits: {
+    fileSize: 10 * 1024 * 1024
+  } });
 
 interface QRDecodeResult {
   data: string | null;
