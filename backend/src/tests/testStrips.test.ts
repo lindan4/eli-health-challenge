@@ -13,7 +13,6 @@ describe('POST /api/test-strips/upload', () => {
       .post('/api/test-strips/upload')
       .attach('image', imagePath);
 
-    // ✅ FIX: Your code returns 200 OK on success now
     expect(response.status).toBe(200);
     expect(response.body.status).toBe('processed');
     expect(response.body.qrCode).toBe('ELI-2025-001');

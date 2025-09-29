@@ -18,7 +18,6 @@ const pool = new Pool({
 
 
 
-// ✅ FIX: Point to the absolute path inside the Docker container
 // This path is created by the volume mount in your docker-compose.yml
 app.use('/uploads', express.static('/usr/src/app/uploads'));
 
@@ -51,5 +50,4 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 
-// ✅ FIX: Export the app for Supertest to use
 export default app;
