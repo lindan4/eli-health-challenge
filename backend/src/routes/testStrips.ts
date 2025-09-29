@@ -294,7 +294,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
     console.log('Saved original image to:', imagePath);
 
     // --- 6. Generate and save thumbnail ---
-    await sharp(imageBuffer).resize(200, 200).png().toFile(thumbnailPath);
+    await sharp(imageBuffer).rotate().resize(200, 200).png().toFile(thumbnailPath);
     console.log('Generated thumbnail:', thumbnailPath);
 
     // --- 7. Save to database (CRITICAL: ALL submissions must be stored) ---

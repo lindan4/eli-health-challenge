@@ -67,12 +67,18 @@ export default function PreviewScreen() {
   return (
     <View style={styles.container}>
       <Image source={{ uri: selectedImage }} style={styles.image} resizeMode="contain" />
-      {isSubmitting ? (
-        <ActivityIndicator size="large" color="#0000ff" />
-      ) : (
+      
+      {/* The buttons are already correctly positioned */}
+      {!isSubmitting && (
         <View style={styles.buttonContainer}>
           <Button title="Retake" onPress={handleClose} color="white" />
           <Button title="Submit" onPress={handleSubmit} color="white" />
+        </View>
+      )}
+
+      {isSubmitting && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
         </View>
       )}
     </View>
@@ -100,5 +106,11 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40, // Add more padding for the home indicator
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject, // This makes it fill the entire screen
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: dims the background
   }
 });
