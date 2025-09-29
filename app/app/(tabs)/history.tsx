@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { FlatList, RefreshControl, Text, View, StyleSheet, ListRenderItem } from "react-native";
+import { FlatList, RefreshControl, Text, View, StyleSheet, ListRenderItem, Button } from "react-native";
 import { useAppContext } from "@/context/AppContext";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import { fetchSubmissions } from "@/lib/api";
@@ -8,13 +8,18 @@ import { Submission } from "@/lib/types";
 export default function HistoryScreen() {
   const { submissions, setSubmissions } = useAppContext();
   const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null)
 
   const loadSubmissions = useCallback(async () => {
     setRefreshing(true);
+    setError(null); // Clear previous errors on a new load attempt
     try {
       const response = await fetchSubmissions();
       setSubmissions(response.submissions);
     } catch (err) {
+      // ✅ 2. Set the error message if the API call fails
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      setError(errorMessage);
       console.error("Failed to load submissions:", err);
     } finally {
       setRefreshing(false);
@@ -37,6 +42,16 @@ export default function HistoryScreen() {
       <Text style={styles.emptySubtext}>Pull down to refresh.</Text>
     </View>
   ), []);
+
+  if (error && !refreshing) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.errorText}>Failed to Load Submissions</Text>
+        <Text style={styles.errorSubtext}>{error}</Text>
+        <Button title="Retry" onPress={loadSubmissions} />
+      </View>
+    );
+  }
 
   return (
     <FlatList
@@ -79,5 +94,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#888',
     marginTop: 8,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#c0392b', // A red color for errors
+    marginBottom: 8,
+  },
+  errorSubtext: {
+    fontSize: 14,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 20,
   }
 });

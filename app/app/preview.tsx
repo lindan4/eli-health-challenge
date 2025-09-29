@@ -51,7 +51,9 @@ export default function PreviewScreen() {
       });
     } catch (err) {
       console.error("Upload failed:", err);
-      Alert.alert("Upload Failed", "Could not upload the image. Please try again.");
+      
+      const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
+      Alert.alert("Upload Failed", errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -69,8 +71,8 @@ export default function PreviewScreen() {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <View style={styles.buttonContainer}>
-          <Button title="Retake" onPress={handleClose} color="gray" />
-          <Button title="Submit" onPress={handleSubmit} />
+          <Button title="Retake" onPress={handleClose} color="white" />
+          <Button title="Submit" onPress={handleSubmit} color="white" />
         </View>
       )}
     </View>
@@ -91,9 +93,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
+    alignItems: 'center', // Center buttons vertically
     width: '100%',
-    padding: 20,
     position: 'absolute',
-    bottom: 40,
+    bottom: 0,
+    paddingTop: 20,
+    paddingBottom: 40, // Add more padding for the home indicator
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   }
 });

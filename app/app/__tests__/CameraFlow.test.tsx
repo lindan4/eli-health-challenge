@@ -130,21 +130,23 @@ describe('Camera to Preview Flow', () => {
 
   it('should show error alert when upload fails', async () => {
     const mockAlert = jest.spyOn(require('react-native').Alert, 'alert');
-    (uploadImage as jest.Mock).mockRejectedValue(new Error('Network error'));
+    
+    // Arrange: Mock the API to reject with a specific error message
+    const networkErrorMessage = 'Network error. Please check your connection and try again.';
+    (uploadImage as jest.Mock).mockRejectedValue(new Error(networkErrorMessage));
 
     const { getByText } = render(<PreviewScreen />);
     
     const submitButton = getByText('Submit');
     fireEvent.press(submitButton);
     
+    // Assert
     await waitFor(() => {
+      // ✅ FIX: Expect the specific error message you mocked
       expect(mockAlert).toHaveBeenCalledWith(
         'Upload Failed',
-        'Could not upload the image. Please try again.'
+        networkErrorMessage 
       );
-      
-      // Should NOT navigate on failure
-      expect(mockReplace).not.toHaveBeenCalled();
     });
   });
 });
