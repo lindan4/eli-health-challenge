@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 
 interface AppContextType {
   submissions: Submission[];
-  setSubmissions: (submissions: Submission[]) => void; // For replacing the whole list
+  setSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>; // For replacing the whole list
   addSubmission: (submission: Submission) => void;    // For adding one new submission
   updateSubmission: (id: string, data: Partial<Submission>) => void;
   selectedImage: string | null;

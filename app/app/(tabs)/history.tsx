@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { FlatList, RefreshControl, Text, View, StyleSheet, ListRenderItem, Button } from "react-native";
+import { FlatList, RefreshControl, Text, View, StyleSheet, ListRenderItem, Button, ActivityIndicator } from "react-native";
 import { useAppContext } from "@/context/AppContext";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import { fetchSubmissions } from "@/lib/api";
@@ -8,33 +8,73 @@ import { Submission } from "@/lib/types";
 export default function HistoryScreen() {
   const { submissions, setSubmissions } = useAppContext();
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const loadSubmissions = useCallback(async () => {
-    setRefreshing(true);
-    setError(null); // Clear previous errors on a new load attempt
+  const loadSubmissions = useCallback(async (pageNum: number, append: boolean = false) => {
+    if (pageNum === 1) {
+      setRefreshing(true);
+    } else {
+      setLoadingMore(true);
+    }
+    setError(null);
+    
     try {
-      const response = await fetchSubmissions();
-      setSubmissions(response.submissions);
+      const response = await fetchSubmissions(pageNum, 10);
+      
+      if (append) {
+        setSubmissions((prev: Submission[]) => [...prev, ...response.submissions]);
+      } else {
+        setSubmissions(response.submissions);
+      }
+      
+      // Check if there are more pages
+      setHasMore(pageNum < response.totalPages);
+      
     } catch (err) {
-      // ✅ 2. Set the error message if the API call fails
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
       setError(errorMessage);
       console.error("Failed to load submissions:", err);
     } finally {
       setRefreshing(false);
+      setLoadingMore(false);
     }
   }, [setSubmissions]);
 
   useEffect(() => {
-    loadSubmissions();
+    loadSubmissions(1, false);
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    setPage(1);
+    setHasMore(true);
+    loadSubmissions(1, false);
   }, [loadSubmissions]);
+
+  const handleLoadMore = useCallback(() => {
+    if (!loadingMore && hasMore && !refreshing) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadSubmissions(nextPage, true);
+    }
+  }, [loadingMore, hasMore, refreshing, page, loadSubmissions]);
 
   const renderItem: ListRenderItem<Submission> = useCallback(({ item }) => (
     <SubmissionCard submission={item} />
   ), []);
 
   const keyExtractor = useCallback((item: Submission) => item.id, []);
+
+  const renderFooter = useCallback(() => {
+    if (!loadingMore) return null;
+    return (
+      <View style={styles.footer}>
+        <ActivityIndicator size="small" color="#000000" />
+      </View>
+    );
+  }, [loadingMore]);
 
   const renderEmptyComponent = useCallback(() => (
     <View style={styles.emptyContainer}>
@@ -43,12 +83,12 @@ export default function HistoryScreen() {
     </View>
   ), []);
 
-  if (error && !refreshing) {
+  if (error && !refreshing && submissions.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.errorText}>Failed to Load Submissions</Text>
         <Text style={styles.errorSubtext}>{error}</Text>
-        <Button title="Retry" onPress={loadSubmissions} />
+        <Button title="Retry" onPress={handleRefresh} />
       </View>
     );
   }
@@ -60,9 +100,12 @@ export default function HistoryScreen() {
       keyExtractor={keyExtractor}
       contentContainerStyle={submissions.length === 0 ? styles.emptyContentContainer : styles.container}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={loadSubmissions} />
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
       }
       ListEmptyComponent={renderEmptyComponent}
+      ListFooterComponent={renderFooter}
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.5}
       removeClippedSubviews={true}
       maxToRenderPerBatch={10}
       updateCellsBatchingPeriod={50}
@@ -98,7 +141,7 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#c0392b', // A red color for errors
+    color: '#c0392b',
     marginBottom: 8,
   },
   errorSubtext: {
@@ -106,5 +149,9 @@ const styles = StyleSheet.create({
     color: '#555',
     textAlign: 'center',
     marginBottom: 20,
+  },
+  footer: {
+    paddingVertical: 20,
+    alignItems: 'center',
   }
 });

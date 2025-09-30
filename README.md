@@ -31,7 +31,7 @@ This project is a full-stack mobile application that allows users to capture pho
 
 - Node.js (v20 or later)
 - Yarn v1
-- Docker & Docker Compose
+- Docker & Docker Compose (ensure Docker Desktop is running while testing or running the app)
 - Xcode (for iOS) or Android Studio (for Android)
 
 ## Setup & Installation
